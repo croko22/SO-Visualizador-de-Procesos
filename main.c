@@ -1,28 +1,49 @@
 #include <stdio.h>
-#include <dirent.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include "src/utils/proc.h"
-// gcc main.c src/utils/proc.h && ./a.out
+#include "src/algorithms/fcfs.c"
+#include "src/algorithms/sjf.c"
+
+//? SCRIPT: gcc main.c  src/utils/proc.h src/utils/proc.c  && ./a.out
 int main()
 {
-    int process_count;
-    struct proc_info *processes = get_proc_info(&process_count);
+    int option;
+    printf("Choose an option:\n");
+    printf("1. FCFS\n");
+    printf("2. SJF\n");
+    printf("3. Priority\n");
+    printf("4. Round Robin\n");
+    printf("5. Exit\n");
+    scanf("%d", &option);
+    int num_processes;
 
-    if (processes != NULL)
+    struct proc_info *processes = get_proc_info(&num_processes);
+    for (int i = 0; i < num_processes; i++)
     {
-        // Print the processes
-        for (int i = 0; i < process_count; i++)
-        {
-            printf("PID: %d, Name: %s, Priority: %d, Burst Time: %lld, Arrival Time: %ld\n",
-                   processes[i].pid, processes[i].name, processes[i].priority,
-                   processes[i].burst_time, processes[i].arrival_time);
-        }
-
-        // Don't forget to free the memory when you're done
-        free(processes);
+        printf("PID: %d, Name: %s, Priority: %d, Burst Time: %lld, Arrival Time: %ld\n", processes[i].pid, processes[i].name, processes[i].priority, processes[i].burst_time, processes[i].arrival_time);
     }
+
+    switch (option)
+    {
+    case 1:
+        fcfs(processes, num_processes);
+        break;
+    case 2:
+        sjf(processes, num_processes);
+        break;
+    case 3:
+
+        break;
+    case 4:
+
+        break;
+    case 5:
+        return 0;
+    default:
+        printf("Invalid option\n");
+        break;
+    }
+
+    // fcfs(processes, num_processes);
+    printf("Number of processes: %d\n", num_processes);
 
     return 0;
 }
