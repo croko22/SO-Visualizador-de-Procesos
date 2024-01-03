@@ -41,12 +41,8 @@ int main()
     //     {3, "P3", 0, 0, 8},
     //     {4, "P4", 0, 0, 15},
     //     {5, "P5", 0, 0, 2}};
+
     int num_processes;
-
-    // Taking input for the number of processes and quantum
-    printf("Enter the number of processes: ");
-    scanf("%d", &num_processes);
-
     struct proc_info *processes = get_proc_info(&num_processes);
     for (int i = 0; i < num_processes; i++)
     {
@@ -55,5 +51,7 @@ int main()
 
     sjf(processes, num_processes);
 
+    //*Print current number of processes
+    printf("Number of processes: %d\n", num_processes);
     return 0;
 }
