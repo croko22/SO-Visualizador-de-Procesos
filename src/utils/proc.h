@@ -19,6 +19,10 @@ struct proc_info
 // Function to get process information
 struct proc_info *get_proc_info(int *count)
 {
+    //* Open the CSV file
+    FILE *file = fopen("processes.csv", "w");
+    fprintf(file, "PID,Name,Priority,Arrival Time,Burst Time\n");
+
     DIR *dirp;
     struct dirent *dp;
 
@@ -73,6 +77,9 @@ struct proc_info *get_proc_info(int *count)
             fclose(fp_uptime);
             info.arrival_time = uptime - (starttime / sysconf(_SC_CLK_TCK)); // Change type to long
 
+            //? Write the process info to the CSV file
+            fprintf(file, "%d,%s,%d,%ld,%lld\n", info.pid, info.name, info.priority, info.arrival_time, info.burst_time);
+
             // Check if we need to resize the array
             if (process_count >= max_processes)
             {
@@ -92,6 +99,7 @@ struct proc_info *get_proc_info(int *count)
     }
     closedir(dirp);
 
+    fclose(file);
     // Update the count and return the array
     *count = process_count;
     return processes;
