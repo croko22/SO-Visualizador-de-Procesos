@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "src/utils/proc.h"
+#include "../utils/proc.h"
 
 // Function to find the process with earliest arrival time
 int find_earliest(struct proc_info *processes, int n)
@@ -31,20 +31,4 @@ void fcfs(struct proc_info *processes, int n)
         }
         n--;
     }
-}
-
-int main()
-{
-    int num_processes;
-
-    struct proc_info *processes = get_proc_info(&num_processes);
-    for (int i = 0; i < num_processes; i++)
-    {
-        printf("PID: %d, Name: %s, Priority: %d, Burst Time: %lld, Arrival Time: %ld\n", processes[i].pid, processes[i].name, processes[i].priority, processes[i].burst_time, processes[i].arrival_time);
-    }
-
-    fcfs(processes, num_processes);
-    printf("Number of processes: %d\n", num_processes);
-
-    return 0;
 }
