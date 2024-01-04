@@ -56,10 +56,12 @@ struct proc_info *get_proc_info(int *count)
             int utime, stime, starttime;
             fscanf(fp, "%d %s %*c %d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %*ld %*ld %*ld %d",
                    &info.pid, info.name, &info.priority, &utime, &stime, &starttime);
+
             fclose(fp);
 
             // Approximate burst time with the sum of utime and stime
-            info.burst_time = utime + stime;
+            // info.burst_time = utime + stime;
+            info.burst_time = (utime + stime) * 1000 / sysconf(_SC_CLK_TCK);
 
             // Calculate the arrival time
             long uptime;
