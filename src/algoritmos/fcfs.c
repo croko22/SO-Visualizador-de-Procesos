@@ -2,33 +2,42 @@
 #include <stdlib.h>
 #include "../procesos.h"
 
-// Function to find the process with earliest arrival time
-int find_earliest(struct info_proceso *processes, int n)
+int mas_reciente(struct info_proceso *procesos, int n)
 {
-    int min = 0;
+    int indice_minimo = 0;
     for (int i = 1; i < n; i++)
     {
-        if (processes[i].tiempo_llegada < processes[min].tiempo_llegada)
-            min = i;
+        if (procesos[i].tiempo_llegada < procesos[indice_minimo].tiempo_llegada)
+            indice_minimo = i;
     }
-    return min;
+    return indice_minimo;
 }
 
-void fcfs(struct info_proceso *processes, int n)
+void fcfs(struct info_proceso *procesos, int n)
 {
+    FILE *archivo = fopen("fcfs_datos.csv", "w");
+    if (archivo == NULL)
+    {
+        printf("Error al abrir el archivo!\n");
+        return;
+    }
+
+    fprintf(archivo, "pid,tiempo_ráfaga\n");
+
     while (n > 0)
     {
-        // Find process with earliest arrival time
-        int earliest = find_earliest(processes, n);
+        int temprano = mas_reciente(procesos, n);
 
-        // Print process info
-        printf("Executing process %d with burst time %lld\n", processes[earliest].pid, processes[earliest].tiempo_ráfaga);
+        printf("Ejecutando proceso %d con tiempo de ráfaga %lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
 
-        // Remove earliest process from array
-        for (int i = earliest; i < n - 1; i++)
+        fprintf(archivo, "%d,%lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
+
+        for (int i = temprano; i < n - 1; i++)
         {
-            processes[i] = processes[i + 1];
+            procesos[i] = procesos[i + 1];
         }
         n--;
     }
+
+    fclose(archivo);
 }
