@@ -1,49 +1,64 @@
 #include <stdio.h>
-#include "src/algorithms/fcfs.c"
-#include "src/algorithms/sjf.c"
+#include <stdlib.h>
+#include "src/algoritmos/fcfs.c"
+#include "src/algoritmos/sjf.c"
 
 //? SCRIPT: gcc main.c  src/utils/proc.h src/utils/proc.c  && ./a.out
+enum Opciones
+{
+    FCFS = 1,
+    SJF,
+    Prioridad,
+    RoundRobin,
+    Salir
+};
+
 int main()
 {
-    int option;
-    printf("Choose an option:\n");
+    int opcion;
+    printf("Elige una opción:\n");
     printf("1. FCFS\n");
     printf("2. SJF\n");
-    printf("3. Priority\n");
+    printf("3. Prioridad\n");
     printf("4. Round Robin\n");
-    printf("5. Exit\n");
-    scanf("%d", &option);
-    int num_processes;
+    printf("5. Salir\n");
+    scanf("%d", &opcion);
+    int num_procesos;
 
-    struct proc_info *processes = get_proc_info(&num_processes);
-    for (int i = 0; i < num_processes; i++)
+    struct info_proceso *procesos = obtener_info_proceso(&num_procesos);
+    for (int i = 0; i < num_procesos; i++)
     {
-        printf("PID: %d, Name: %s, Priority: %d, Burst Time: %lld, Arrival Time: %ld\n", processes[i].pid, processes[i].name, processes[i].priority, processes[i].burst_time, processes[i].arrival_time);
+        printf("PID: %d, Nombre: %s, Prioridad: %d, Tiempo de Ráfaga: %lld, Tiempo de Llegada: %ld\n",
+               procesos[i].pid, procesos[i].nombre, procesos[i].prioridad,
+               procesos[i].tiempo_ráfaga, procesos[i].tiempo_llegada);
     }
 
-    switch (option)
+    if (opcion == FCFS)
     {
-    case 1:
-        fcfs(processes, num_processes);
-        break;
-    case 2:
-        sjf(processes, num_processes);
-        break;
-    case 3:
-
-        break;
-    case 4:
-
-        break;
-    case 5:
+        fcfs(procesos, num_procesos);
+    }
+    else if (opcion == SJF)
+    {
+        sjf(procesos, num_procesos);
+    }
+    else if (opcion == Prioridad)
+    {
+        // Implementar lógica para la opción de Prioridad
+    }
+    else if (opcion == RoundRobin)
+    {
+        // Implementar lógica para la opción de Round Robin
+    }
+    else if (opcion == Salir)
+    {
         return 0;
-    default:
-        printf("Invalid option\n");
-        break;
+    }
+    else
+    {
+        printf("Opción no válida\n");
     }
 
-    // fcfs(processes, num_processes);
-    printf("Number of processes: %d\n", num_processes);
+    printf("Número de procesos: %d\n", num_procesos);
 
     return 0;
 }
