@@ -8,6 +8,7 @@ struct proc_info
     int priority;
     long arrival_time;
     long long burst_time;
+    float normalized_burst_time;
 };
 
 struct proc_info *get_proc_info(int *count);

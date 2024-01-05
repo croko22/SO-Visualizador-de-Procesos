@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 
 // Function to get process information
 struct proc_info *get_proc_info(int *count)
@@ -56,19 +57,18 @@ struct proc_info *get_proc_info(int *count)
             int utime, stime, starttime;
             fscanf(fp, "%d %s %*c %d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu %*ld %*ld %*ld %d",
                    &info.pid, info.name, &info.priority, &utime, &stime, &starttime);
-
             fclose(fp);
 
-            // Approximate burst time with the sum of utime and stime
-            // info.burst_time = utime + stime;
-            info.burst_time = (utime + stime) * 1000 / sysconf(_SC_CLK_TCK);
+            info.burst_time = (utime + stime);
+            // info.burst_time = (utime + stime) * 1000 / sysconf(_SC_CLK_TCK);
 
             // Calculate the arrival time
             long uptime;
             FILE *fp_uptime = fopen("/proc/uptime", "r");
             fscanf(fp_uptime, "%ld", &uptime);
             fclose(fp_uptime);
-            info.arrival_time = uptime - (starttime / sysconf(_SC_CLK_TCK)); // Change type to long
+            // info.arrival_time = uptime - (starttime / sysconf(_SC_CLK_TCK));
+            info.arrival_time = uptime - starttime;
 
             //? Write the process info to the CSV file
             fprintf(file, "%d,%s,%d,%ld,%lld\n", info.pid, info.name, info.priority, info.arrival_time, info.burst_time);
@@ -95,5 +95,29 @@ struct proc_info *get_proc_info(int *count)
     fclose(file);
     // Update the count and return the array
     *count = process_count;
+
+    // Initialize min and max values
+    int min_burst_time = INT_MAX;
+    int max_burst_time = INT_MIN;
+
+    // Calculate min and max values
+    for (int i = 0; i < process_count; i++)
+    {
+        if (processes[i].burst_time < min_burst_time)
+        {
+            min_burst_time = processes[i].burst_time;
+        }
+        if (processes[i].burst_time > max_burst_time)
+        {
+            max_burst_time = processes[i].burst_time;
+        }
+    }
+
+    // Now you can normalize the data
+    for (int i = 0; i < process_count; i++)
+    {
+        processes[i].normalized_burst_time = (processes[i].burst_time - min_burst_time) / (double)(max_burst_time - min_burst_time);
+    }
+
     return processes;
 }
