@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "src/algorithms/fcfs.c"
 #include "src/algorithms/sjf.c"
+#include "src/algorithms/rr.c"
 
 //? SCRIPT: gcc main.c  src/utils/proc.h src/utils/proc.c  && ./a.out
 int main()
@@ -32,10 +33,9 @@ int main()
         sjf(processes, num_processes);
         break;
     case 3:
-
         break;
     case 4:
-
+        rr(processes, num_processes);
         break;
     case 5:
         return 0;
