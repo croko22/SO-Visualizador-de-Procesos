@@ -9,6 +9,8 @@ struct proc_info
     long arrival_time;
     long long burst_time;
     int normalized_burst_time;
+    int execution_time;
+    int waiting_time;
 };
 
 struct proc_info *get_proc_info(int *count);
