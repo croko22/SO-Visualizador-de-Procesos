@@ -20,7 +20,7 @@ int main()
 
     for (int i = 0; i < num_processes; i++)
     {
-        printf("%-10d %-20s %-10d %-15lld %-15ld %-20.2f\n", processes[i].pid, processes[i].name, processes[i].priority, processes[i].burst_time, processes[i].arrival_time, processes[i].normalized_burst_time);
+        printf("%-10d %-20s %-10d %-15lld %-15ld %-20d\n", processes[i].pid, processes[i].name, processes[i].priority, processes[i].burst_time, processes[i].arrival_time, processes[i].normalized_burst_time);
     }
 
     switch (option)
