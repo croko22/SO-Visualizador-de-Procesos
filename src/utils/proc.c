@@ -60,14 +60,12 @@ struct proc_info *get_proc_info(int *count)
             fclose(fp);
 
             info.burst_time = (utime + stime);
-            // info.burst_time = (utime + stime) * 1000 / sysconf(_SC_CLK_TCK);
 
             // Calculate the arrival time
             long uptime;
             FILE *fp_uptime = fopen("/proc/uptime", "r");
             fscanf(fp_uptime, "%ld", &uptime);
             fclose(fp_uptime);
-            // info.arrival_time = uptime - (starttime / sysconf(_SC_CLK_TCK));
             info.arrival_time = uptime - starttime;
 
             //? Write the process info to the CSV file
@@ -116,7 +114,9 @@ struct proc_info *get_proc_info(int *count)
     // Now you can normalize the data
     for (int i = 0; i < process_count; i++)
     {
-        processes[i].normalized_burst_time = (processes[i].burst_time - min_burst_time) / (double)(max_burst_time - min_burst_time);
+        // processes[i].normalized_burst_time = (processes[i].burst_time - min_burst_time) / (double)(max_burst_time - min_burst_time);
+        processes[i].normalized_burst_time = (processes[i].burst_time - min_burst_time) / (double)(max_burst_time - min_burst_time) * 100;
+        // processes[i].normalized_burst_time = (int)round((double)processes[i].burst_time / max_burst_time * 100);
     }
 
     return processes;
