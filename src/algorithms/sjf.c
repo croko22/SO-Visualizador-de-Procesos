@@ -24,9 +24,9 @@ void sjf(struct proc_info *processes, int n)
         return;
     }
 
-    // Write the Gantt chart header to the file
-    // fprintf(file, "---\ndisplayMode: compact\n---\ngantt\n    title SJF Scheduling\n    dateFormat  X\n     axisFormat %%s\n section Section\n");
+    // Write and print the Gantt chart header to the file
     fprintf(file, "gantt\n    title SJF Scheduling\n    dateFormat  X\n     axisFormat %%s\n section Section\n");
+    printf("%-10s %-20s %-10s %-15s %-15s %-20s\n", "PID", "Name", "Priority", "Burst Time", "Arrival Time", "Normalized Burst Time");
 
     int total_burst_time = 0;
 
@@ -35,13 +35,17 @@ void sjf(struct proc_info *processes, int n)
         // Find process with shortest burst time
         int shortest = find_shortest(processes, n);
 
-        // Print process info
-        printf("Executing process %d with burst time %d\n", processes[shortest].pid, processes[shortest].normalized_burst_time);
+        //* Print process info
+        // printf("Executing process %d with burst time %d\n", processes[shortest].pid, processes[shortest].normalized_burst_time);
+        printf("%-10d %-20s %-10d %-15lld %-15ld %-20d\n",
+               processes[shortest].pid,
+               processes[shortest].name,
+               processes[shortest].priority,
+               processes[shortest].burst_time,
+               processes[shortest].arrival_time,
+               processes[shortest].normalized_burst_time);
 
-        // Calculate the duration in seconds
         int duration = processes[shortest].normalized_burst_time;
-
-        // Write the process info to the Gantt chart file
         fprintf(file, "    PID %d          : %d, %d\n", processes[shortest].pid, total_burst_time, total_burst_time + duration);
 
         // Update the total burst time
