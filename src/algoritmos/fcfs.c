@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "../procesos.h"
 
+int compare(const void *a, const void *b)
+{
+    struct info_proceso *proceso_a = (struct info_proceso *)a;
+    struct info_proceso *proceso_b = (struct info_proceso *)b;
+    return (proceso_a->tiempo_llegada - proceso_b->tiempo_llegada);
+}
+
 int mas_reciente(struct info_proceso *procesos, int n)
 {
     int indice_minimo = 0;
@@ -15,29 +22,43 @@ int mas_reciente(struct info_proceso *procesos, int n)
 
 void fcfs(struct info_proceso *procesos, int n)
 {
-    FILE *archivo = fopen("fcfs_datos.csv", "w");
+    FILE *archivo = fopen("fcfs.csv", "w");
     if (archivo == NULL)
     {
         printf("Error al abrir el archivo!\n");
         return;
     }
 
-    fprintf(archivo, "pid,tiempo_ráfaga\n");
+    fprintf(archivo, "pid,start_time,end_time\n");
+    int current_time = 0;
+    qsort(procesos, n, sizeof(struct info_proceso), compare); // assuming compare is a function that compares two info_proceso structures based on tiempo_llegada
 
-    while (n > 0)
+    for (int i = 0; i < n; i++)
     {
-        int temprano = mas_reciente(procesos, n);
+        int start_time = (procesos[i].tiempo_llegada > current_time) ? procesos[i].tiempo_llegada : current_time;
+        int end_time = start_time + procesos[i].tiempo_ráfaga;
 
-        printf("Ejecutando proceso %d con tiempo de ráfaga %lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
+        fprintf(archivo, "%d,%d,%d\n", procesos[i].pid, start_time, end_time);
 
-        fprintf(archivo, "%d,%lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
-
-        for (int i = temprano; i < n - 1; i++)
-        {
-            procesos[i] = procesos[i + 1];
-        }
-        n--;
+        current_time = end_time;
     }
 
     fclose(archivo);
+
+    //    while (n > 0)
+    // {
+    //     int temprano = mas_reciente(procesos, n);
+
+    //     printf("Ejecutando proceso %d con tiempo de ráfaga %lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
+
+    //     fprintf(archivo, "%d,%lld\n", procesos[temprano].pid, procesos[temprano].tiempo_ráfaga);
+
+    //     for (int i = temprano; i < n - 1; i++)
+    //     {
+    //         procesos[i] = procesos[i + 1];
+    //     }
+    //     n--;
+    // }
+
+    // fclose(archivo);
 }

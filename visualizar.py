@@ -1,21 +1,32 @@
-import plotly.express as px
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from datetime import datetime
 import pandas as pd
 
-# Data provided
-data = {
-    'pid': [1, 2, 3, 4, 5, 6, 7, 9],
-    'start_time': [0, 4204211, 8408422, 12612633, 16816844, 21021055, 25225266, 29429477],
-    'end_time': [4204211, 8408422, 12612633, 16816844, 21021055, 25225266, 29429477, 33633688]
-} 
+# df = pd.DataFrame(data)
+df = pd.read_csv('fcfs.csv')
+df.describe()
 
-df = pd.DataFrame(data)
+# Reduce to ten processes
+df = df[:10]
 
-# Create Gantt chart using Plotly
-fig = px.timeline(df, x_start='start_time', x_end='end_time', y='pid', labels={'pid': 'Process ID'},
-                  title='Gantt Chart for Process Execution',
-                  category_orders={'pid': sorted(df['pid'], reverse=True)})
+# Convert timestamps to datetime objects
+df['start_time'] = pd.to_datetime(df['start_time'], unit='ms')
+df['end_time'] = pd.to_datetime(df['end_time'], unit='ms')
 
-# Show Gantt chart
-fig.update_yaxes(categoryorder='total ascending')
-fig.write_html('first_figure.html', auto_open=True)
-# fig.show()
+# Creating Gantt Chart
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for i, row in df.iterrows():
+    ax.barh(y=row['pid'], width=(row['end_time'] - row['start_time']),
+            left=row['start_time'], color='blue')
+
+# Formatting the plot
+ax.set_xlabel('Time')
+ax.set_ylabel('Process ID')
+
+# Use automatic date formatting
+ax.xaxis_date()
+
+plt.title('Gantt Chart')
+plt.show()
