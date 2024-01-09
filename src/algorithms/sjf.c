@@ -16,40 +16,24 @@ int find_shortest(struct proc_info *processes, int n)
 
 void sjf(struct proc_info *processes, int n)
 {
-    // Open the Gantt chart file
-    FILE *file = fopen("gantt.mmd", "w");
-    if (file == NULL)
-    {
-        perror("Failed to open file");
-        return;
-    }
-
-    // Write and print the Gantt chart header to the file
-    fprintf(file, "gantt\n    title SJF Scheduling\n    dateFormat  X\n     axisFormat %%s\n section Section\n");
-    printf("%-10s %-20s %-10s %-15s %-15s %-20s\n", "PID", "Name", "Priority", "Burst Time", "Arrival Time", "Normalized Burst Time");
-
-    int total_burst_time = 0;
+    int current_time = 0;
+    struct proc_info *completed_processes = malloc(sizeof(struct proc_info) * n);
+    int completed_count = 0;
 
     while (n > 0)
     {
         // Find process with shortest burst time
         int shortest = find_shortest(processes, n);
 
-        //* Print process info
-        // printf("Executing process %d with burst time %d\n", processes[shortest].pid, processes[shortest].normalized_burst_time);
-        printf("%-10d %-20s %-10d %-15lld %-15ld %-20d\n",
-               processes[shortest].pid,
-               processes[shortest].name,
-               processes[shortest].priority,
-               processes[shortest].burst_time,
-               processes[shortest].arrival_time,
-               processes[shortest].normalized_burst_time);
+        // Calculate waiting time and turnaround time
+        processes[shortest].waiting_time = current_time;
+        processes[shortest].turnaround_time = processes[shortest].waiting_time + processes[shortest].normalized_burst_time;
 
-        int duration = processes[shortest].normalized_burst_time;
-        fprintf(file, "    PID %d          : %d, %d\n", processes[shortest].pid, total_burst_time, total_burst_time + duration);
+        // Store completed process
+        completed_processes[completed_count++] = processes[shortest];
 
-        // Update the total burst time
-        total_burst_time += duration;
+        // Update current time
+        current_time += processes[shortest].normalized_burst_time;
 
         // Remove shortest process from array
         for (int i = shortest; i < n - 1; i++)
@@ -59,6 +43,23 @@ void sjf(struct proc_info *processes, int n)
         n--;
     }
 
-    // Close the Gantt chart file
+    // Open the CSV file
+    FILE *file = fopen("data/sjf.csv", "w");
+    if (file == NULL)
+    {
+        perror("Failed to open file");
+        return;
+    }
+
+    // Write the header to the CSV file
+    fprintf(file, "PID,Normalized Burst Time,Arrival Time,Waiting Time,Turnaround Time\n");
+
+    // Write the process data to the CSV file
+    for (int i = 0; i < completed_count; i++)
+    {
+        fprintf(file, "%d,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, completed_processes[i].waiting_time, completed_processes[i].turnaround_time);
+    }
+
     fclose(file);
+    free(completed_processes);
 }
