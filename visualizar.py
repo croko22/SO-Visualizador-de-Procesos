@@ -1,64 +1,61 @@
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from datetime import datetime
+import tkinter as tk
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+def display_chart(filename, title):
+    df = pd.read_csv(filename)
+    # Reduce to ten processes
+    df = df[:100]
 
-# Get user input
-print("Seleccione el algoritmo que desea utilizar:")
-print("1. FCFS")
-print("2. SJF")
-print("3. RR")
-choice = input("Ingrese el número del algoritmo: ")
+    # Convert timestamps to datetime objects
+    df['start_time'] = pd.to_datetime(df['start_time'], unit='ms')
+    df['end_time'] = pd.to_datetime(df['end_time'], unit='ms')
 
-# Execute the chosen algorithm
-if choice == '1':
-    df = pd.read_csv('fcfs.csv')
-    title = 'First-Come-First-Serve (FCFS) Scheduling'
-elif choice == '2':
-    df = pd.read_csv('sjf.csv')
-    title = 'Shortest Job First (SJF) Scheduling'
-elif choice == '3':
-    df = pd.read_csv('rr.csv')
-    title = 'Round Robin (RR) Scheduling'
-else:
-    print("Opción no válida. Por favor, ingrese un número del 1 al 3.")
+    # Creating Gantt Chart
+    fig, ax = plt.subplots(figsize=(10, 30))  # Increase the height of the figure
 
-# Reduce to ten processes
-df = df[:20]
+    bar_height = 0.5  # Adjust the bar height to fit more processes
+    y_ticks = []  # List to store the y-tick labels
 
-# Convert timestamps to datetime objects
-df['start_time'] = pd.to_datetime(df['start_time'], unit='ms')
-df['end_time'] = pd.to_datetime(df['end_time'], unit='ms')
+    for i, row in df.iterrows():
+        ax.barh(y=i, width=(row['end_time'] - row['start_time']),
+                left=row['start_time'], height=bar_height, color='blue')
+        y_ticks.append(row['pid'])
 
-# Creating Gantt Chart
-# fig, ax = plt.subplots(figsize=(10, 6))
+    ax.set_ylim(-0.5, len(df) - 0.5)  # Set the y-axis limits
+    ax.set_yticks(range(len(df)))  # Set the y-tick positions
+    ax.set_yticklabels(y_ticks)  
 
-# for i, row in df.iterrows():
-#     ax.barh(y=row['pid'], width=(row['end_time'] - row['start_time']),
-#             left=row['start_time'], color='blue')
+    # Formateando el gráfico
+    ax.set_xlabel('Tiempo')
+    ax.set_ylabel('ID del Proceso')
 
-# Creating Gantt Chart
-fig, ax = plt.subplots(figsize=(10, 30))  # Increase the height of the figure
+    ax.xaxis_date()
 
-bar_height = 0.5  # Adjust the bar height to fit more processes
-y_ticks = []  # List to store the y-tick labels
+    plt.title('Diagrama de Gantt para ' + title)
+    plt.show()
 
-for i, row in df.iterrows():
-    ax.barh(y=i, width=(row['end_time'] - row['start_time']),
-            left=row['start_time'], height=bar_height, color='blue')
-    y_ticks.append(row['pid'])
+def fcfs():
+    display_chart('fcfs.csv', 'First-Come-First-Serve (FCFS) Scheduling')
 
-ax.set_ylim(-0.5, len(df) - 0.5)  # Set the y-axis limits
-ax.set_yticks(range(len(df)))  # Set the y-tick positions
-ax.set_yticklabels(y_ticks)  
+def sjf():
+    display_chart('sjf.csv', 'Shortest Job First (SJF) Scheduling')
 
-# Formateando el gráfico
-ax.set_xlabel('Tiempo')
-ax.set_ylabel('ID del Proceso')
+def rr():
+    display_chart('rr.csv', 'Round Robin (RR) Scheduling')
 
-# Usar formato de fecha automático
-ax.xaxis_date()
+root = tk.Tk()
+root.geometry('+0+0')
 
-plt.title('Diagrama de Gantt para ' + title)
-plt.show()
+button1 = tk.Button(root, text="FCFS", command=fcfs)
+button1.pack()
+
+button2 = tk.Button(root, text="SJF", command=sjf)
+button2.pack()
+
+button3 = tk.Button(root, text="RR", command=rr)
+button3.pack()
+
+root.mainloop()
+

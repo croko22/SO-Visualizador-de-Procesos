@@ -20,6 +20,7 @@ void sjf(struct info_proceso *processes, int n)
     FILE *archivo = fopen("sjf.csv", "w");
 
     fprintf(archivo, "pid,start_time,end_time\n");
+    // printf("PID\tStart Time\tEnd Time\n");
 
     int current_time = 0;
     while (n > 0)
@@ -33,7 +34,7 @@ void sjf(struct info_proceso *processes, int n)
         fprintf(archivo, "%d,%d,%d\n", processes[shortest].pid, start_time, end_time);
 
         // Print process info
-        printf("Executing process %d with burst time %lld\n", processes[shortest].pid, processes[shortest].tiempo_ráfaga);
+        // printf("%d\t%d\t\t%d\n", processes[shortest].pid, start_time, end_time);
 
         for (int i = shortest; i < n - 1; i++)
             processes[i] = processes[i + 1];

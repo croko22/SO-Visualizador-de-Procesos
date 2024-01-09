@@ -81,6 +81,24 @@ struct info_proceso *obtener_info_proceso(int *cuenta)
     }
     closedir(directorio);
 
+    // Find the minimum and maximum values of tiempo_ráfaga
+    int min = procesos[0].tiempo_ráfaga;
+    int max = procesos[0].tiempo_ráfaga;
+
+    for (int i = 1; i < cuenta_procesos; i++)
+    {
+        if (procesos[i].tiempo_ráfaga < min)
+            min = procesos[i].tiempo_ráfaga;
+        if (procesos[i].tiempo_ráfaga > max)
+            max = procesos[i].tiempo_ráfaga;
+    }
+
+    // Normalize the tiempo_ráfaga values
+    for (int i = 0; i < cuenta_procesos; i++)
+    {
+        procesos[i].tiempo_ráfaga = ((procesos[i].tiempo_ráfaga - min) / (float)(max - min)) * 1000;
+    }
+
     *cuenta = cuenta_procesos;
     return procesos;
 }

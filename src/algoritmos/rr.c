@@ -2,41 +2,6 @@
 #include <stdlib.h>
 #include "../procesos.h"
 
-// void rr(struct info_proceso *processes, int num_processes)
-// {
-//     int time_quantum = 3;
-//     int *remaining_times = malloc(sizeof(int) * num_processes);
-//     int total_time = 0;
-//     int current_time = 0;
-
-//     FILE *archivo = fopen("rr.csv", "w");
-//     fprintf(archivo, "pid,start_time,end_time\n");
-//     // Imprimir encabezado de la tabla
-//     printf("| Proceso | Rafaga | Tiempo de llegada | Prioridad | Tiempo ejecucion | Tiempo espera |\n");
-
-//     // Obtener los tiempos de ráfaga de los procesos y calcular el tiempo total
-//     for (int i = 0; i < num_processes; i++)
-//     {
-//         int start_time = current_time;
-//         int end_time = start_time + processes[i].tiempo_ráfaga;
-//         processes[i].tiempo_espera = start_time - processes[i].tiempo_llegada;
-//         processes[i].tiempo_ejecucion = end_time - processes[i].tiempo_llegada;
-
-//         printf("| %-7d | %-6lld | %-17ld | %-9d | %-15d | %-13d |\n",
-//                processes[i].pid, processes[i].tiempo_ráfaga, processes[i].tiempo_llegada,
-//                processes[i].prioridad, processes[i].tiempo_ejecucion, processes[i].tiempo_espera);
-
-//         fprintf(archivo, "%d,%d,%d\n", processes[i].pid, start_time, end_time);
-
-//         remaining_times[i] = processes[i].tiempo_ráfaga;
-//         total_time += processes[i].tiempo_ráfaga;
-//         current_time = end_time;
-//     }
-
-//     fclose(archivo);
-//     free(remaining_times);
-// }
-
 void rr(struct info_proceso *processes, int num_processes)
 {
     int time_quantum = 200;
@@ -53,8 +18,7 @@ void rr(struct info_proceso *processes, int num_processes)
 
     fprintf(archivo, "pid,start_time,end_time\n");
 
-    printf("| Proceso | Rafaga | Tiempo de llegada | Prioridad | Tiempo ejecucion | Tiempo espera |\n");
-    printf("|---------|--------|-------------------|-----------|-------------------|---------------|\n");
+    // printf("| Proceso | Rafaga | Tiempo de llegada | Prioridad | Tiempo ejecucion | Tiempo espera |\n");
 
     for (int i = 0; i < num_processes; i++)
     {
@@ -83,14 +47,13 @@ void rr(struct info_proceso *processes, int num_processes)
                     processes[i].tiempo_espera = current_time - processes[i].tiempo_ráfaga;
                     processes[i].tiempo_ejecucion = current_time - processes[i].tiempo_llegada;
                     remaining_times[i] = 0;
-                }
 
-                // fprintf(archivo, "%d,%d,%d\n", processes[i].pid, current_time - remaining_times[i], current_time);
-                // Only write to the file when a process finishes
-                if (remaining_times[i] == 0)
-                {
+                    // Only write to the file when a process finishes
                     fprintf(archivo, "%d,%d,%d\n", processes[i].pid, current_time - processes[i].tiempo_ráfaga, current_time);
                 }
+
+                //? Write to the file every time
+                // fprintf(archivo, "%d,%d,%d\n", processes[i].pid, current_time - remaining_times[i], current_time);
             }
         }
 
@@ -100,9 +63,9 @@ void rr(struct info_proceso *processes, int num_processes)
 
     for (int i = 0; i < num_processes; i++)
     {
-        printf("| %-7d | %-6lld | %-17ld | %-9d | %-15d | %-13d |\n",
-               processes[i].pid, processes[i].tiempo_ráfaga, processes[i].tiempo_llegada,
-               processes[i].prioridad, processes[i].tiempo_ejecucion, processes[i].tiempo_espera);
+        // printf("| %-7d | %-6lld | %-17ld | %-9d | %-15d | %-13d |\n",
+        //        processes[i].pid, processes[i].tiempo_ráfaga, processes[i].tiempo_llegada,
+        //        processes[i].prioridad, processes[i].tiempo_ejecucion, processes[i].tiempo_espera);
 
         fprintf(archivo, "%d,%d,%d\n", processes[i].pid, processes[i].tiempo_llegada, processes[i].tiempo_ejecucion);
     }
