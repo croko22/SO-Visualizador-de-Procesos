@@ -11,6 +11,7 @@ struct proc_info
     int normalized_burst_time;
     int execution_time;
     int waiting_time;
+    int turnaround_time;
 };
 
 struct proc_info *get_proc_info(int *count);
