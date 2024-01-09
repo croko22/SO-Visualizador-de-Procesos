@@ -1,75 +1,119 @@
+import pandas as pd
 import tkinter as tk
 from tkinter import ttk
-from multiprocessing import Process, Queue
-import subprocess
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.animation import FuncAnimation
+from matplotlib.figure import Figure
+from matplotlib.dates import date2num
+from datetime import datetime, timedelta
 
-def run_rr_algorithm(queue):
-    process = subprocess.Popen(["./rr_algorithm"], stdout=subprocess.PIPE, text=True)
-    for line in process.stdout:
-        queue.put(line)
-    process.wait()
+# Función común para cargar el archivo CSV
+def load_csv(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except Exception as e:
+        print(f"Error al cargar el archivo CSV: {e}")
+        return None
 
-def update_interface(queue, tree, fig, ax):
-    while True:
-        try:
-            line = queue.get_nowait()
-            process_info = line.strip().split("|")
-            if len(process_info) == 7:
-                tree.insert("", "end", values=process_info[1:-1])
-                # Actualizar el gráfico en tiempo real
-                update_bar_chart(ax, tree)
-        except queue.Empty:
-            pass
+# Función para mostrar la ventana con opciones específicas para cada algoritmo
+def show_algorithm_options(algorithm):
+    file_path = f'{algorithm}_output.csv'
+    df = load_csv(file_path)
 
-def update_bar_chart(ax, tree):
-    # Obtener datos de la tabla y actualizar el gráfico
-    process_names = [item[0] for item in tree.get_children("")]
-    burst_times = [int(tree.item(process, "values")[1]) for process in process_names]
-    ax.clear()
-    ax.bar(process_names, burst_times, color='blue')
-    ax.set_ylabel('Tiempo de Ráfaga')
-    ax.set_title('Progreso de Ejecución de Procesos')
+    if df is not None:
+        # Crear ventana con opciones específicas para el algoritmo
+        window_algorithm = tk.Toplevel()
+        window_algorithm.title(f'{algorithm} - Opciones')
 
-def main():
-    root = tk.Tk()
-    root.title("Round Robin Visualization")
+        # Agregar botones para la tabla, gráfica y diagrama de Gantt
+        button_table = tk.Button(window_algorithm, text='Tabla', command=lambda: show_table(df))
+        button_table.pack(side=tk.LEFT, padx=10)
 
-    # Crear un Treeview para mostrar la tabla de procesos
-    columns = ("Proceso", "Ráfaga", "Tiempo de llegada", "Prioridad", "Tiempo ejecución", "Tiempo espera")
-    tree = ttk.Treeview(root, columns=columns, show="headings")
-    for col in columns:
-        tree.heading(col, text=col)
-    tree.pack(expand=True, fill="both")
+        button_plot = tk.Button(window_algorithm, text='Gráfica', command=lambda: show_plot(df))
+        button_plot.pack(side=tk.LEFT, padx=10)
 
-    # Crear una figura y un eje para el gráfico
+        button_gantt = tk.Button(window_algorithm, text='Diagrama de Gantt', command=lambda: show_gantt(df))
+        button_gantt.pack(side=tk.LEFT, padx=10)
+
+# Funciones específicas para cada algoritmo
+def show_round_robin():
+    show_algorithm_options('RoundRobin')
+
+def show_fcfs():
+    show_algorithm_options('FCFS')
+
+def show_sjf():
+    show_algorithm_options('SJF')
+
+# Funciones comunes para mostrar la tabla, gráfica y diagrama de Gantt
+def show_table(df):
+    window_table = tk.Toplevel()
+    window_table.title('Tabla de Procesos')
+
+    tree = ttk.Treeview(window_table)
+    tree["columns"] = tuple(df.columns)
+
+    for col in df.columns:
+        tree.column(col, anchor="center", width=100)
+        tree.heading(col, text=col, anchor="center")
+
+    for index, row in df.iterrows():
+        tree.insert("", index, values=tuple(row))
+
+    tree.pack(expand=tk.YES, fill=tk.BOTH)
+
+def show_plot(df):
     fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master=root)
-    widget = canvas.get_tk_widget()
-    widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+    ax.plot(df['Tiempo_ejecucion'], label='Tiempo de ejecución')
+    ax.plot(df['Tiempo_espera'], label='Tiempo de espera')
+    ax.set_xlabel('Índice del Proceso')
+    ax.set_ylabel('Tiempo (segundos)')
+    ax.set_title('Tiempo de Ejecución y Tiempo de Espera')
+    ax.legend()
 
-    # Crear una cola para la comunicación entre procesos
-    queue = Queue()
+    window_plot = tk.Toplevel()
+    window_plot.title('Gráfico de Tiempos')
 
-    # Iniciar el proceso que ejecuta el algoritmo Round Robin
-    rr_process = Process(target=run_rr_algorithm, args=(queue,))
-    rr_process.start()
+    canvas = FigureCanvasTkAgg(fig, master=window_plot)
+    canvas.draw()
+    canvas.get_tk_widget().pack(expand=tk.YES, fill=tk.BOTH)
 
-    # Iniciar el proceso que actualiza la interfaz gráfica
-    update_process = Process(target=update_interface, args=(queue, tree, fig, ax))
-    update_process.start()
+def show_gantt(df):
+    fig, ax = plt.subplots()
+    start_date = datetime.now()
 
-    # Configurar el evento para cerrar la aplicación
-    root.protocol("WM_DELETE_WINDOW", lambda: root.quit())
+    for index, row in df.iterrows():
+        task_start = date2num(start_date)
+        task_end = date2num(start_date + timedelta(seconds=row['Tiempo_ejecucion']))
+        ax.barh(index, task_end - task_start, left=task_start, height=0.5, align='center', label=row['Proceso'])
 
-    # Ejecutar la aplicación
-    root.mainloop()
+    ax.set_xlabel('Tiempo')
+    ax.set_yticks(range(len(df)))
+    ax.set_yticklabels(df['Proceso'])
+    ax.set_title('Diagrama de Gantt')
+    ax.invert_yaxis()
 
-    # Esperar a que los procesos terminen
-    rr_process.join()
-    update_process.join()
+    window_gantt = tk.Toplevel()
+    window_gantt.title('Diagrama de Gantt')
+
+    canvas = FigureCanvasTkAgg(fig, master=window_gantt)
+    canvas.draw()
+    canvas.get_tk_widget().pack(expand=tk.YES, fill=tk.BOTH)
 
 if __name__ == "__main__":
-    main()
+    root = tk.Tk()
+    root.title('Visualizador de Procesos')
+
+    # Agregar botones para seleccionar el algoritmo
+    button_round_robin = tk.Button(root, text='Round Robin', command=show_round_robin)
+    button_round_robin.pack(side=tk.LEFT, padx=10)
+
+    button_fcfs = tk.Button(root, text='FCFS', command=show_fcfs)
+    button_fcfs.pack(side=tk.LEFT, padx=10)
+
+    button_sjf = tk.Button(root, text='SJF', command=show_sjf)
+    button_sjf.pack(side=tk.LEFT, padx=10)
+
+    root.mainloop()
+
