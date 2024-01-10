@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "../utils/proc.h"
 void rr(struct proc_info *processes, int num_processes)
 {
-    int time_quantum = 3;
+    FILE *file = fopen("data/rr.csv", "w");
+    // Write the header to the CSV file
+    fprintf(file, "pid,name,normalized_burst_time,arrival_time,waiting_time,turnaround_time\n");
+
+    int time_quantum = 30;
     int *remaining_times = malloc(sizeof(int) * num_processes);
     int total_time = 0;
 
@@ -34,10 +40,18 @@ void rr(struct proc_info *processes, int num_processes)
                 }
 
                 int execution_time = remaining_times[i] > time_quantum ? time_quantum : remaining_times[i];
+                int start_time = current_time;
                 current_time += execution_time;
+                int end_time = current_time;
+
                 remaining_times[i] -= execution_time;
                 total_time -= execution_time;
 
+                // fprintf(file, "%d,%d,%d\n", processes[i].pid, start_time, end_time);
+                fprintf(file, "%d,%s,%d,%ld,%d,%d\n", processes[i].pid, processes[i].name, processes[i].normalized_burst_time, processes[i].arrival_time, start_time, end_time);
+                // fprintf(file, "%d,%s,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].name, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, start_time, end_time);
+
+                // printf("%d,%s,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].name, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, start_time, end_time);
                 if (remaining_times[i] == 0)
                 {
                     processes[i].turnaround_time = current_time;
@@ -47,22 +61,11 @@ void rr(struct proc_info *processes, int num_processes)
         }
     }
 
-    // Open the CSV file
-    FILE *file = fopen("data/rr.csv", "w");
-    if (file == NULL)
-    {
-        perror("Failed to open file");
-        return;
-    }
-
-    // Write the header to the CSV file
-    fprintf(file, "pid,name,normalized_burst_time,arrival_time,waiting_time,turnaround_time\n");
-
     // Write the process data to the CSV file
-    for (int i = 0; i < completed_count; i++)
-    {
-        fprintf(file, "%d,%s,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].name, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, completed_processes[i].waiting_time, completed_processes[i].turnaround_time);
-    }
+    // for (int i = 0; i < completed_count; i++)
+    // {
+    //     fprintf(file, "%d,%s,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].name, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, completed_processes[i].waiting_time, completed_processes[i].turnaround_time);
+    // }
 
     fclose(file);
     free(remaining_times);
