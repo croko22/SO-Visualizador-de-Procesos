@@ -24,6 +24,8 @@ def show_algorithm_options(algorithm):
     if df is not None:
         # Crear ventana con opciones específicas para el algoritmo
         window_algorithm = tk.Toplevel()
+        window_algorithm.geometry("320x200") 
+
         window_algorithm.title(f'{algorithm} - Opciones')
 
         # Agregar botones para la tabla, gráfica y diagrama de Gantt
@@ -101,16 +103,20 @@ def show_gantt(algorithm):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title('Visualizador de Procesos')
+    root.geometry("400x500")
 
-    # Agregar botones para seleccionar el algoritmo
-    button_round_robin = tk.Button(root, text='Round Robin', command=show_round_robin)
-    button_round_robin.pack(side=tk.LEFT, padx=10)
+    # Style for the buttons
+    style = ttk.Style()
+    style.configure('TButton', padding=(10, 5), font=('Helvetica', 12), background='#3498db')  # Use your preferred color code
 
-    button_fcfs = tk.Button(root, text='FCFS', command=show_fcfs)
-    button_fcfs.pack(side=tk.LEFT, padx=10)
+    # Adding buttons for algorithm selection
+    button_round_robin = ttk.Button(root, text='Round Robin', command=show_round_robin)
+    button_round_robin.pack(side=tk.LEFT, padx=10, pady=10, anchor=tk.CENTER)
 
-    button_sjf = tk.Button(root, text='SJF', command=show_sjf)
-    button_sjf.pack(side=tk.LEFT, padx=10)
+    button_fcfs = ttk.Button(root, text='FCFS', command=show_fcfs)
+    button_fcfs.pack(side=tk.LEFT, padx=10, pady=10, anchor=tk.CENTER)
+
+    button_sjf = ttk.Button(root, text='SJF', command=show_sjf)
+    button_sjf.pack(side=tk.LEFT, padx=10, pady=10, anchor=tk.CENTER)
 
     root.mainloop()
-
