@@ -52,12 +52,12 @@ void sjf(struct proc_info *processes, int n)
     }
 
     // Write the header to the CSV file
-    fprintf(file, "PID,Normalized Burst Time,Arrival Time,Waiting Time,Turnaround Time\n");
+    fprintf(file, "pid,name,normalized_burst_time,arrival_time,waiting_time,turnaround_time\n");
 
     // Write the process data to the CSV file
     for (int i = 0; i < completed_count; i++)
     {
-        fprintf(file, "%d,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, completed_processes[i].waiting_time, completed_processes[i].turnaround_time);
+        fprintf(file, "%d,%s,%d,%ld,%d,%d\n", completed_processes[i].pid, completed_processes[i].name, completed_processes[i].normalized_burst_time, completed_processes[i].arrival_time, completed_processes[i].waiting_time, completed_processes[i].turnaround_time);
     }
 
     fclose(file);

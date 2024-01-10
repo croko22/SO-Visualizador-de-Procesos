@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/proc.h"
 
 // Function to find the process with earliest arrival time
@@ -17,7 +18,7 @@ int find_earliest(struct proc_info *processes, int n)
 void fcfs(struct proc_info *processes, int n)
 {
     FILE *file = fopen("data/fcfs.csv", "w");
-    fprintf(file, "PID,Normalized Burst Time,Arrival Time,Waiting Time,Turnaround Time\n");
+    fprintf(file, "pid,name,normalized_burst_time,arrival_time,waiting_time,turnaround_time\n");
 
     int current_time = 0;
     int n_copy = n;
@@ -31,11 +32,7 @@ void fcfs(struct proc_info *processes, int n)
         processes[earliest].waiting_time = current_time;
         processes[earliest].turnaround_time = processes[earliest].waiting_time + processes[earliest].normalized_burst_time;
 
-        printf("Waiting and turnaround time for process %d: %d, %d\n", processes[earliest].pid, processes[earliest].waiting_time, processes[earliest].turnaround_time);
-        fprintf(file, "%d,%lld,%d,%d,%d\n", processes[earliest].pid, processes[earliest].normalized_burst_time, processes[earliest].arrival_time, processes[earliest].waiting_time, processes[earliest].turnaround_time);
-
-        // Print process info
-        printf("Executing process %d with burst time %lld\n", processes[earliest].pid, processes[earliest].normalized_burst_time);
+        fprintf(file, "%d, %s,%lld,%d,%d,%d\n", processes[earliest].pid, processes[earliest].name, processes[earliest].normalized_burst_time, processes[earliest].arrival_time, processes[earliest].waiting_time, processes[earliest].turnaround_time);
 
         current_time += processes[earliest].normalized_burst_time;
 
