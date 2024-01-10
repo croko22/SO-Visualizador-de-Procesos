@@ -1,6 +1,8 @@
 import pandas as pd
 import tkinter as tk
 from tkinter import ttk
+from tkinter import PhotoImage
+from tkinter import Label
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -18,7 +20,8 @@ def load_csv(file_path):
 
 # Función para mostrar la ventana con opciones específicas para cada algoritmo
 def show_algorithm_options(algorithm):
-    file_path = f'{algorithm}_output.csv'
+    # Lowercase
+    file_path = f'data/{algorithm.lower()}.csv'
     df = load_csv(file_path)
 
     if df is not None:
@@ -33,12 +36,12 @@ def show_algorithm_options(algorithm):
         button_plot = tk.Button(window_algorithm, text='Gráfica', command=lambda: show_plot(df))
         button_plot.pack(side=tk.LEFT, padx=10)
 
-        button_gantt = tk.Button(window_algorithm, text='Diagrama de Gantt', command=lambda: show_gantt(df))
+        button_gantt = tk.Button(window_algorithm, text='Diagrama de Gantt', command=lambda: show_gantt(algorithm))
         button_gantt.pack(side=tk.LEFT, padx=10)
 
 # Funciones específicas para cada algoritmo
 def show_round_robin():
-    show_algorithm_options('RoundRobin')
+    show_algorithm_options('RR')
 
 def show_fcfs():
     show_algorithm_options('FCFS')
@@ -50,9 +53,12 @@ def show_sjf():
 def show_table(df):
     window_table = tk.Toplevel()
     window_table.title('Tabla de Procesos')
+    window_table.geometry("800x600")  # Set the window size to 800x600 pixels
 
     tree = ttk.Treeview(window_table)
     tree["columns"] = tuple(df.columns)
+    tree.column("#0", width=0)
+
 
     for col in df.columns:
         tree.column(col, anchor="center", width=100)
@@ -65,8 +71,8 @@ def show_table(df):
 
 def show_plot(df):
     fig, ax = plt.subplots()
-    ax.plot(df['Tiempo_ejecucion'], label='Tiempo de ejecución')
-    ax.plot(df['Tiempo_espera'], label='Tiempo de espera')
+    ax.plot(df['turnaround_time'], label='Tiempo de ejecución')
+    ax.plot(df['waiting_time'], label='Tiempo de espera')
     ax.set_xlabel('Índice del Proceso')
     ax.set_ylabel('Tiempo (segundos)')
     ax.set_title('Tiempo de Ejecución y Tiempo de Espera')
@@ -79,27 +85,21 @@ def show_plot(df):
     canvas.draw()
     canvas.get_tk_widget().pack(expand=tk.YES, fill=tk.BOTH)
 
-def show_gantt(df):
-    fig, ax = plt.subplots()
-    start_date = datetime.now()
-
-    for index, row in df.iterrows():
-        task_start = date2num(start_date)
-        task_end = date2num(start_date + timedelta(seconds=row['Tiempo_ejecucion']))
-        ax.barh(index, task_end - task_start, left=task_start, height=0.5, align='center', label=row['Proceso'])
-
-    ax.set_xlabel('Tiempo')
-    ax.set_yticks(range(len(df)))
-    ax.set_yticklabels(df['Proceso'])
-    ax.set_title('Diagrama de Gantt')
-    ax.invert_yaxis()
-
+def show_gantt(algorithm):
     window_gantt = tk.Toplevel()
-    window_gantt.title('Diagrama de Gantt')
+    window_gantt.title('Gantt Chart')
 
-    canvas = FigureCanvasTkAgg(fig, master=window_gantt)
-    canvas.draw()
-    canvas.get_tk_widget().pack(expand=tk.YES, fill=tk.BOTH)
+    # Load the image
+    img = PhotoImage(file=f'data/{algorithm.lower()}.png')
+
+    # Create a label with the image
+    img_label = Label(window_gantt, image=img)
+    img_label.image = img  # Keep a reference to the image to prevent it from being garbage collected
+
+    # Add the label to the window
+    img_label.pack()
+
+    window_gantt.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()
