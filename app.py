@@ -5,9 +5,6 @@ from tkinter import PhotoImage
 from tkinter import Label
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-from matplotlib.dates import date2num
-from datetime import datetime, timedelta
 
 # Función común para cargar el archivo CSV
 def load_csv(file_path):
