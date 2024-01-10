@@ -20,12 +20,12 @@ int main()
     struct proc_info *processes_rr = malloc(sizeof(struct proc_info) * num_processes);
     memcpy(processes_fcfs, processes, sizeof(struct proc_info) * num_processes);
     memcpy(processes_sjf, processes, sizeof(struct proc_info) * num_processes);
-    memcpy(processes_rr, processes, sizeof(struct proc_info) * num_processes);
+    memcpy(processes_rr, processes, sizeof(struct proc_info) * 10);
 
     // Run each algorithm
     fcfs(processes_fcfs, num_processes);
     sjf(processes_sjf, num_processes);
-    rr(processes_rr, num_processes);
+    rr(processes_rr, 10);
 
     // Free the memory allocated for the copies
     free(processes_fcfs);
